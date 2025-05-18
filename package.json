@@ -1,6 +1,6 @@
 {
   "name": "@quik-fe/flick",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "nodejs cli utils like fire(python)",
   "main": "dist/main.js",
   "module": "dist/main.mjs",

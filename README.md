@@ -24,6 +24,7 @@ const argsDef = {
     .object({
       name: z.string().describe("Name to greet"),
       times: z.number().optional().default(1).describe("Number of repetitions"),
+      upcase: z.boolean().optional().describe("Uppercase the name"),
     })
     .describe("Greet a person multiple times"),
 };
@@ -31,9 +32,11 @@ const argsDef = {
 flick(argsDef)
   .describe("Hello world from flick")
   .handler({
-    greet: ({ name, times }) => {
+    greet: ({ name, times, upcase }) => {
+      let text = `👋 Hello, ${name}`;
+      if (upcase) text = text.toUpperCase();
       for (let i = 0; i < times; i++) {
-        console.log(`👋 Hello, ${name}`);
+        console.log(text);
       }
     },
   })
@@ -63,15 +66,18 @@ Greet a person multiple times
 Options:
   --name <name>    Name to greet
   --times <times>  Number of repetitions (default: 1)
+  --upcase         Uppercase the name
   -h, --help       display help for command
 ```
 
-```ts
-$ npx tsx ./demo.ts greet --name 我 --times 3
-👋 Hello, 我
-👋 Hello, 我
-👋 Hello, 我
+```bash
+$ npx tsx ./demo.ts greet --name lenml --no-upcase --times=3
+👋 Hello, lenml
+👋 Hello, lenml
+👋 Hello, lenml
 ```
+
+> If you define a boolean-type parameter, you can also use a hidden `--no-<key>` parameter to indicate negation.
 
 # LICENSE
 

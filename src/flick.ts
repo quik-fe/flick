@@ -1,5 +1,5 @@
 // src/main.ts
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import type { ZodObject, z, ZodType, ZodUnionDef } from "zod";
 
 type SchemaMap = Record<string, ZodObject<any>>;
@@ -41,7 +41,10 @@ function coerceArgs<T extends ZodObject<any>>(
         break;
 
       case "ZodBoolean":
-        result[key] = value === "true" || value === true;
+        result[key] =
+          typeof value === "string"
+            ? value.toLowerCase() !== "false"
+            : value !== false;
         break;
 
       case "ZodArray":
@@ -94,12 +97,19 @@ class FlickTime<S extends SchemaMap> {
         const desc = def.description ?? "";
         const isOptional = def.isOptional?.() || !!def._def?.defaultValue;
         const defaultVal = def._def?.defaultValue?.() ?? undefined;
+        const is_bool = whatType(def) == "ZodBoolean";
 
-        const flag = `--${key} <${key}>`;
+        const flag = is_bool ? `--${key}` : `--${key} <${key}>`;
+
         if (!isOptional && defaultVal === undefined) {
           cmd.requiredOption(flag, desc);
         } else {
           cmd.option(flag, desc, defaultVal);
+        }
+
+        // 对于 boolean 再增加 --no-<key>
+        if (is_bool) {
+          cmd.addOption(new Option(`--no-${key}`).hideHelp());
         }
       }
       this.commands[name] = {
